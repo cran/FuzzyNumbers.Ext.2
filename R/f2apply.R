@@ -1,5 +1,5 @@
 f2apply <-
-function( x, y, fun, knot.n=10, I.O.plot=FALSE, ... ){
+function( x, y, fun, knot.n=10, cuts=c("TRUE", "FALSE"), I.O.plot=c("FALSE", "TRUE"), ... ){
   x = as.PiecewiseLinearFuzzyNumber(x, knot.n)
   y = as.PiecewiseLinearFuzzyNumber(y, knot.n)
 
@@ -69,4 +69,13 @@ if (I.O.plot == TRUE)
    else{
         plot(result, Alphacuts, xlab="fun(x,y)", ylab="membership func. of fun(x,y)", ...)
        }
+
+  if( cuts == TRUE ){
+    result2 <- c(L.result[length(L.result):1], U.result[length(U.result):1])
+    cuts <- matrix(result2, ncol=2, byrow=FALSE, 
+                   dimnames = list( round((length(L.result)-1):0/(length(L.result)-1),3), c("L", "U"))) 
+    print( "The alphacuts of the result are:" )
+    return( cuts )
+    }
+
 }
