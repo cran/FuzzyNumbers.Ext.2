@@ -8,7 +8,7 @@ Suppose that we are going to put two fuzzy numbers \eqn{x} and \eqn{y} into the 
 Function \code{f2apply} applies easily two fuzzy numbers to a monotonic two-variable function. Although the theory of \code{f2apply} computation is based on the Zadeh's extension Principle, but it works with the \eqn{\alpha}-cuts of two inputted fuzzy numbers for all \eqn{\alpha \in (0,1]}. It must be mentioned that the ability of computing \eqn{\alpha}-cuts of the result is added to the Version 2.0.
 }
 \usage{
-f2apply(x, y, fun, knot.n=10, cuts=c("TRUE","FALSE"), I.O.plot=c("FALSE","TRUE"), ...)
+f2apply(x, y, fun, knot.n=10, I.O.plot=c("FALSE","TRUE"), ...)
 }
 \arguments{
   \item{x}{
@@ -23,9 +23,6 @@ a two-variable function which is monotone function on the supports of \code{x} a
   \item{knot.n}{
 the number of knots; see package \code{FuzzyNumbers}
 }
-  \item{cuts}{
-a logical argument with default \code{TRUE}. If \code{cuts=TRUE}, then \code{f2apply} function return the matrix of all \eqn{\alpha}-cuts for the output fuzzy number based on the considered \code{knot.n}.
-}
   \item{I.O.plot}{
 a logical argument with default \code{FALSE}. If \code{I.O.plot=TRUE}, then three membership functions of \eqn{x}, \eqn{y} (Inputted fuzzy numbers) and \eqn{f(x,y)} (Outputted fuzzy number) are drawn in a figure. If \code{I.O.plot=FALSE}, then just the membership function of Outputted fuzzy number \eqn{f(x,y)} will be shown in figure.
 }
@@ -34,8 +31,13 @@ additional arguments passed from \code{plot}
 }
 }
 \value{
-a pricewise linear fuzzy number and also plot the result
+This function returns pricewise linear fuzzy number \eqn{f(x,y)} and also plot the result.
+\item{fun.rep }{describes the monotonic behavior of the considered function}
+\item{cuts }{returns the \eqn{\alpha}-cuts of the computed fuzzy number \eqn{f(x,y)} }
+\item{core }{returns the core of the computed fuzzy number \eqn{f(x,y)} }
+\item{support }{returns the support of the computed fuzzy number \eqn{f(x,y)} }
 }
+
 \references{
 Gagolewski, M., Caha, J., FuzzyNumbers Package: Tools to Deal with Fuzzy Numbers in R. R package version 0.4-1, 2015. https://cran.r-project.org/web/packages=FuzzyNumbers
 
@@ -68,9 +70,8 @@ y = TrapezoidalFuzzyNumber(3,4,5,6)
 
 g1 = function(x,y) 2*x+y
 f2apply(x, y, g1, knot.n=5, type="l", I.O.plot=TRUE)
-f2apply(x, y, g1, knot.n=5, type="l", cuts=FALSE, I.O.plot=TRUE)
 f2apply(x, y, g1, knot.n=10, xlim=c(0,18), col=4, type="b")
-plot(2*x+y, col=2, lty=4, lwd=3, add=TRUE) #Compare with the result from "FuzzyNumbers" package
+plot(2*x+y, col=2, lty=4, lwd=3, add=TRUE) #Compare the result from "FuzzyNumbers" package
 
 g2 = function(x,y) -2*pnorm(x)+y
 f2apply(x, y, g2, type="b")
@@ -82,7 +83,8 @@ g4 = function(x,y) -2*x-y^3
 f2apply(x, y, g4, knot.n=20, type="b" )
 
 
-# Example 2:  
+
+# Example 2: -----------------------
 knot.n = 10
 A <- FuzzyNumber(-1, .5, 1, 3,
   lower=function(alpha) qbeta(alpha,0.4,3),
@@ -93,35 +95,33 @@ A1 <- piecewiseLinearApproximation(A, knot.n=knot.n)
 B = PowerFuzzyNumber(1,2,2.5,4, p.left=2, p.right=0.5)
 B1 <- piecewiseLinearApproximation(B, knot.n=knot.n)
 
-f2apply(A1, B1, function(x,y) -2*x-y^3, knot.n=knot.n, cuts=FALSE, type="l", I.O.plot=TRUE)
+f2apply(A1, B1, function(x,y) -2*x-y^3, knot.n=knot.n, type="l", I.O.plot=TRUE, col=2, lty=5, lwd=3)
 
 
 
 # As another example, change the function and work with the cuts of result:
 
-Result <- f2apply(A1, B1, function(x,y) abs(y+x-.1), knot.n=knot.n, type="l", I.O.plot=TRUE)
+Result <- f2apply(A1, B1, function(x,y) abs(y+x-.1), knot.n=knot.n, type="l", I.O.plot=TRUE, 
+                  col=3, lwd=2)
 Result
 class(Result)
 
 #The result of alphacut for alpha=0.444:
-Result["0.444",] #Or equivalently,  
-Result[6,]  
+Result$cuts["0.444",] #Or equivalently,  
+Result$cuts[6,]  
 
 # Upper bounds of alphacuts:
-Result[,"U"] #Or equivalently,  
-Result[,2]
+Result$cuts[,"U"] #Or equivalently,  
+Result$cuts[,2]
 
 #The core of the result:
-Result[1,]  
+Result$core  
 
 # The support of the result:
-dim(Result)
-Result[dim(Result)[1],]  #Or equivalently, 
-Result[knot.n,]
+Result$support # Or, equivalently:  Result$s
 
 
-
-# Example 3:  
+# Example 3: -----------------------
 knot.n = 10
 x = PowerFuzzyNumber(0,1,1,1.3, p.left=1, p.right=1) 
 x1 <- piecewiseLinearApproximation(x, knot.n=knot.n)
@@ -136,7 +136,7 @@ g = function(x,y) exp(x^2) + 3*log(sqrt(y+4))
 f2apply(x1, y1, g, knot.n=knot.n, type="l", I.O.plot=TRUE)
 
 
-# Example 4: 
+# Example 4: -----------------------
 knot.n = 20
 A = PowerFuzzyNumber(.1,.5,.5,.6, p.left=2, p.right=0.5)
 A1 <- piecewiseLinearApproximation(A, knot.n=knot.n)
@@ -148,15 +148,17 @@ B <- FuzzyNumber(.5, .6, .7, .9,
 B1 <- piecewiseLinearApproximation(B, knot.n=knot.n)
 fun1 <- function(x,y) qnorm(x)-qgamma(y,2,4)
 
-f2apply(A1, B1, fun1, knot.n=knot.n, type="l", I.O.plot=TRUE)
+f2apply(A1, B1, fun1, knot.n=knot.n, type="l", I.O.plot=TRUE, col=2, lwd=2)
 
 fun2 <- function(x,y) 0.3*sin(qnorm(x))+tan(qgamma(y,2,4))
 f2apply(A1, B1, fun2, knot.n=knot.n, type="l", I.O.plot=TRUE)
 
 
 
+
 ## The function is currently defined as
-function (x, y, fun, knot.n = 10, cuts=c("TRUE", "FALSE"), I.O.plot=c("FALSE", "TRUE"), ...) 
+function (x, y, fun, knot.n = 10, I.O.plot = c("FALSE", "TRUE"), 
+    ...) 
 {
     x = as.PiecewiseLinearFuzzyNumber(x, knot.n)
     y = as.PiecewiseLinearFuzzyNumber(y, knot.n)
@@ -165,7 +167,7 @@ function (x, y, fun, knot.n = 10, cuts=c("TRUE", "FALSE"), I.O.plot=c("FALSE", "
     if ((is.increasing.on.x(fun, x.bound = supp(x), y.bound = supp(y), 
         step.x) == TRUE) & (is.increasing.on.y(fun, x.bound = supp(x), 
         y.bound = supp(y), step.y) == TRUE)) {
-        print("fun is an increasing function from x and y on introduced bounds")
+        fun.rep = "fun is an increasing function from x and y on introduced bounds"
         L.result = fun(alphacut(x, seq(0, 1, len = knot.n))[, 
             "L"], alphacut(y, seq(0, 1, len = knot.n))[, "L"])
         U.result = fun(alphacut(x, seq(0, 1, len = knot.n))[, 
@@ -176,7 +178,7 @@ function (x, y, fun, knot.n = 10, cuts=c("TRUE", "FALSE"), I.O.plot=c("FALSE", "
         if ((is.decreasing.on.x(fun, x.bound = supp(x), y.bound = supp(y), 
             step.x) == TRUE) & (is.increasing.on.y(fun, x.bound = supp(x), 
             y.bound = supp(y), step.y) == TRUE)) {
-       print("fun is a decreasing function on x and increasing function on y on introduced bounds")
+            fun.rep="fun is a decreasing on x and increasing on y in the introduced bounds"
             L.result = fun(alphacut(x, seq(0, 1, len = knot.n))[, 
                 "U"], alphacut(y, seq(0, 1, len = knot.n))[, 
                 "L"])
@@ -189,7 +191,7 @@ function (x, y, fun, knot.n = 10, cuts=c("TRUE", "FALSE"), I.O.plot=c("FALSE", "
             if ((is.increasing.on.x(fun, x.bound = supp(x), y.bound = supp(y), 
                 step.x) == TRUE) & (is.decreasing.on.y(fun, x.bound = supp(x), 
                 y.bound = supp(y), step.y) == TRUE)) {
-      print("fun is an increasing function on x and decreasing function on y on introduced bounds")
+                fun.rep = "fun is an increasing on x and decreasing on y in the introduced bounds"
                 L.result = fun(alphacut(x, seq(0, 1, len = knot.n))[, 
                   "L"], alphacut(y, seq(0, 1, len = knot.n))[, 
                   "U"])
@@ -203,7 +205,7 @@ function (x, y, fun, knot.n = 10, cuts=c("TRUE", "FALSE"), I.O.plot=c("FALSE", "
                   y.bound = supp(y), step.x) == TRUE) & (is.decreasing.on.y(fun, 
                   x.bound = supp(x), y.bound = supp(y), step.y) == 
                   TRUE)) {
-                  print("fun is a decreasing function from x and y on introduced bounds")
+                  fun.rep = "fun is a decreasing function from x and y on introduced bounds"
                   L.result = fun(alphacut(x, seq(0, 1, len = knot.n))[, 
                     "U"], alphacut(y, seq(0, 1, len = knot.n))[, 
                     "U"])
@@ -213,34 +215,31 @@ function (x, y, fun, knot.n = 10, cuts=c("TRUE", "FALSE"), I.O.plot=c("FALSE", "
                   result = c(L.result, U.result[length(U.result):1])
                 }
                 else {
-           print("fun is not a monoton function on x and y, so f is not appliable for computation")
+          fun.rep="fun is not a monoton function on x and y, so f is not appliable for computation"
                 }
             }
         }
     }
-    Alphacuts = c( seq(0,1,len=knot.n) , seq(1,0,len=knot.n) )
-if (I.O.plot == TRUE)
-   {
-   op <- par(mfrow = c(3, 1))
-   plot(x, ylab="membership func. of x")
-   plot(y, col=1, xlab="y", ylab="membership func. of y")
-   plot(result, Alphacuts, lwd=2, xlab="fun(x,y)", ylab="membership func. of fun(x,y)", ...)
-   abline(v=fun(core(x),core(y)), lty=3)
-   par(op)
-   }
-   else{
-        plot(result, Alphacuts, xlab="fun(x,y)", ylab="membership func. of fun(x,y)", ...)
-       }
-
-  if( cuts == TRUE ){
-    result2 <- c(L.result[length(L.result):1], U.result[length(U.result):1])
-    cuts <- matrix(result2, ncol=2, byrow=FALSE, 
-               dimnames=list( round((length(L.result)-1):0/(length(L.result)-1),3), c("L", "U")))
-    print( "The alphacuts of the result are:" )
-    return( cuts )
+    Alphacuts = c(seq(0, 1, len = knot.n), seq(1, 0, len = knot.n))
+    if (I.O.plot == TRUE) {
+        op <- par(mfrow = c(3, 1))
+        plot(x, ylab = "membership func. of x")
+        plot(y, col = 1, xlab = "y", ylab = "membership func. of y")
+        plot(result, Alphacuts, xlab = "fun(x,y)", ylab = "membership func. of fun(x,y)", 
+            ...)
+        abline(v = fun(core(x), core(y)), lty = 3)
+        par(op)
     }
-
-}
+    else {
+        plot(result, Alphacuts, xlab = "fun(x,y)", ylab = "membership func. of fun(x,y)", 
+            ...)
+    }
+    result2 <- c(L.result[length(L.result):1], U.result[length(U.result):1])
+    cuts <- matrix(result2, ncol = 2, byrow = FALSE, dimnames = list(round((length(L.result) - 
+        1):0/(length(L.result) - 1), 3), c("L", "U")))
+    return(list(fun.rep = noquote(fun.rep), cuts = cuts, core = cuts[1, 
+        ], support = cuts[dim(cuts)[1], ]))
+  }
 }
 
 
