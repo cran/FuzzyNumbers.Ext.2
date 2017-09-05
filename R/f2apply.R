@@ -11,7 +11,7 @@ if( class(x) == "TriangularFuzzyNumber" | class(x) == "TrapezoidalFuzzyNumber" )
        x.input.fuzzy <- x
        x <- as.PiecewiseLinearFuzzyNumber(x, knot.n)
        }
-if( class(x) == "FuzzyNumber"  |  class(x) == "PowerFuzzyNumber" ){
+if( class(x) == "FuzzyNumber"  |  class(x) == "PowerFuzzyNumber" | class(x) == "PiecewiseLinearFuzzyNumber" ){
        x.input.fuzzy <- x
        x <- piecewiseLinearApproximation(x, method='Naive')
        }
@@ -23,7 +23,7 @@ if( class(y) == "TriangularFuzzyNumber" | class(y) == "TrapezoidalFuzzyNumber" )
        y.input.fuzzy <- y
        y <- as.PiecewiseLinearFuzzyNumber(y, knot.n)
        }
-if( class(y) == "FuzzyNumber"  |  class(y) == "PowerFuzzyNumber" ){
+if( class(y) == "FuzzyNumber"  |  class(y) == "PowerFuzzyNumber" | class(y) == "PiecewiseLinearFuzzyNumber" ){
        y.input.fuzzy <- y
        y <- piecewiseLinearApproximation(y, method='Naive')
        }
